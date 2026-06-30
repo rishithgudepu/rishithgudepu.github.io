@@ -10,6 +10,7 @@ import {
 
 const nav = [
   ["About", "about"],
+  ["Education", "education"],
   ["Experience", "experience"],
   ["Projects", "projects"],
   ["Research & Awards", "research"],
@@ -111,7 +112,14 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="edu">
+        </section>
+
+        <hr className="rule" />
+
+        {/* EDUCATION */}
+        <section id="education" className="block">
+          <SectionLabel>Education</SectionLabel>
+          <div className="edu edu-standalone">
             {education.map((e, i) => (
               <div className="edu-row" key={i}>
                 <div>

@@ -196,6 +196,8 @@ body {
   font-size: 14px;
 }
 .edu { margin-top: 44px; display: flex; flex-direction: column; gap: 6px; }
+.edu-standalone { margin-top: 0; }
+.edu-standalone .edu-row:first-child { border-top: none; padding-top: 0; }
 .edu-row {
   display: flex;
   justify-content: space-between;
