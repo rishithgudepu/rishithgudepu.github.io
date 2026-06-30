@@ -148,7 +148,7 @@ export const research = [
     abstract:
       "Iterative multimodal generation degrades output quality in ways standard No-Reference Image Quality Assessment metrics fail to track. We propose DriftScore, an anchor-relative, trajectory-aware metric that measures quality drift against the original generation.",
     tags: ["Multimodal", "NR-IQA", "Deep Learning"],
-    url: "",
+    url: "https://openreview.net/forum?id=S6a4Gg4Z7J",
   },
   {
     title:
@@ -166,11 +166,11 @@ export const research = [
       "When Does Prompt-Perturbation Uncertainty Catch Interactive-Segmentation Failures? An Empirical Study on SAM/MedSAM",
     year: "2026",
     authors: "R. Gudepu, S. Loke, N. Movva, N. Mburu",
-    venue: "",
+    venue: "MICCAI 2026 · UNSURE Workshop",
     abstract:
       "Evaluates Prompt-Perturbation Uncertainty (PPU) as a label-free reliability signal for foundation segmenters (SAM and MedSAM) by measuring mask disagreement across jittered prompts. Across six dataset-model evaluation cells, PPU is highly effective at flagging catastrophic failures in generic SAM models, whereas medical fine-tuning in MedSAM calibrates standard softmax-entropy enough to edge out PPU at critical thresholds.",
     tags: ["Segmentation", "MedSAM", "Medical Imaging"],
-    url: "",
+    url: "https://openreview.net/forum?id=cLehr9EUAP",
   },
   {
     title: "Causal Representation Learning for Regime Detection",
