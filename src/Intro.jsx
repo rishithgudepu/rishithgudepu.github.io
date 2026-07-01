@@ -56,6 +56,7 @@ function Strip({ items }) {
 export default function Intro({ onEnter }) {
   const [phase, setPhase] = useState("arrow"); // "arrow" -> "market"
   const [leaving, setLeaving] = useState(false);
+  const [tick, setTick] = useState({ dir: "up", price: 592.4, pct: 0.42 });
   const exitRef = useRef(null);
 
   const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
@@ -65,6 +66,27 @@ export default function Intro({ onEnter }) {
   useEffect(() => {
     const t = setTimeout(() => setPhase("market"), 2800);
     return () => clearTimeout(t);
+  }, []);
+
+  // once the zoom-out settles, the arrow starts reacting like a live ticker:
+  // flips up (green) / down (red) with a ticking price
+  useEffect(() => {
+    let id;
+    const start = setTimeout(() => {
+      id = setInterval(() => {
+        setTick((t) => {
+          const change = (Math.random() - 0.44) * 7; // slight upward bias
+          const dir = change >= 0 ? "up" : "down";
+          const price = Math.max(60, t.price + change);
+          const pct = (change / t.price) * 100;
+          return { dir, price, pct };
+        });
+      }, 780);
+    }, 2900);
+    return () => {
+      clearTimeout(start);
+      clearInterval(id);
+    };
   }, []);
 
   function enter() {
@@ -107,26 +129,37 @@ export default function Intro({ onEnter }) {
           </h1>
           <p className="intro-sub">Finance · Markets · AI</p>
 
-          {/* the camera's focal point: a single straight green arrow that
-              stays put — the stage just zooms out around it */}
-          <div className="hero-arrow" aria-hidden="true">
-            <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
+          {/* the camera's focal point: one straight arrow that stays put and
+              reacts like a live ticker — flips up (green) / down (red) */}
+          <div className="hero-arrow">
+            <svg
+              className={`arrow-svg ${tick.dir}`}
+              viewBox="0 0 240 240"
+              fill="none"
+              aria-hidden="true"
+            >
               <line
                 className="arrow-shaft"
                 x1="44"
                 y1="198"
                 x2="176"
                 y2="66"
-                stroke="#34d399"
+                stroke="currentColor"
                 strokeWidth="22"
                 strokeLinecap="round"
               />
               <polygon
                 className="arrow-head"
                 points="210,32 146,50 192,96"
-                fill="#34d399"
+                fill="currentColor"
               />
             </svg>
+            <div className="arrow-readout">
+              <span className="ar-px">{tick.price.toFixed(2)}</span>
+              <span className={`ar-chg ${tick.dir}`}>
+                {tick.dir === "up" ? "▲" : "▼"} {Math.abs(tick.pct).toFixed(2)}%
+              </span>
+            </div>
           </div>
 
           <button className="enter-btn" onClick={enter}>
