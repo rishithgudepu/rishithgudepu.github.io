@@ -773,11 +773,11 @@ body {
 .hub-name:hover,
 .hub-role:hover,
 .hub-about:hover {
-  color: var(--signal-down);
+  color: #f4c74a;
   transition: color 0.15s ease;
 }
 .hub-name:hover .grad {
   background: none;
-  -webkit-text-fill-color: var(--signal-down);
-  color: var(--signal-down);
+  -webkit-text-fill-color: #f4c74a;
+  color: #f4c74a;
 }
