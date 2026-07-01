@@ -19,7 +19,6 @@ export const profile = {
 
 export const about = [
   "Hey, I'm Rishith. I'm a student at the Illinois Mathematics and Science Academy who spends most of his time building things, whether that's a startup, a machine learning model, or a research project that started as a random idea at 2am.",
-  "When I'm not reading papers or on my computer, you'll catch me at a soccer game, a pickleball tournament, or playing the violin. I care about making things that actually help people, and I'm just getting started.",
 ];
 
 export const skills = [
@@ -154,7 +153,7 @@ export const research = [
     title:
       "KineticsRecon: Cross-Phase Reconstruction with Learned Temporal Sampling for Accelerated Breast DCE-MRI",
     year: "2026",
-    authors: "R. Gudepu, S. Loke, N. Movva, N. Mburu",
+    authors: "R. Gudepu, S. Loke, N. Movva, N. Mburu, S. Bestavemula, M. Hota",
     venue: "MICCAI 2026 · RIME Workshop",
     abstract:
       "An end-to-end multi-phase reconstruction pipeline for accelerated breast DCE-MRI that integrates a temporal backbone, a cross-phase attention module, and a jointly optimized, learned Cartesian sampling pattern. Benchmarked on the large-scale MAMA-MIA dataset, the framework drastically improves reconstruction quality over zero-filled baselines while establishing a notable negative result: adding an auxiliary pharmacokinetic loss based on the Tofts model does not improve image-domain metrics.",
@@ -165,7 +164,7 @@ export const research = [
     title:
       "When Does Prompt-Perturbation Uncertainty Catch Interactive-Segmentation Failures? An Empirical Study on SAM/MedSAM",
     year: "2026",
-    authors: "R. Gudepu, S. Loke, N. Movva, N. Mburu",
+    authors: "R. Gudepu, S. Loke, N. Movva, N. Mburu, S. Bestavemula, M. Hota",
     venue: "MICCAI 2026 · UNSURE Workshop",
     abstract:
       "Evaluates Prompt-Perturbation Uncertainty (PPU) as a label-free reliability signal for foundation segmenters (SAM and MedSAM) by measuring mask disagreement across jittered prompts. Across six dataset-model evaluation cells, PPU is highly effective at flagging catastrophic failures in generic SAM models, whereas medical fine-tuning in MedSAM calibrates standard softmax-entropy enough to edge out PPU at critical thresholds.",
