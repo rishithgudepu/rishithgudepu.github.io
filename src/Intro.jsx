@@ -54,9 +54,10 @@ function Strip({ items }) {
 }
 
 export default function Intro({ onEnter }) {
-  const [phase, setPhase] = useState("arrow"); // "arrow" -> "market"
+  const [phase, setPhase] = useState("matrix"); // "matrix" -> "market"
   const [leaving, setLeaving] = useState(false);
   const exitRef = useRef(null);
+  const matrixRef = useRef(null);
   const canvasRef = useRef(null);
   const pxRef = useRef(null);
   const chgRef = useRef(null);
@@ -64,11 +65,68 @@ export default function Intro({ onEnter }) {
   const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
   const botItems = useRef(COMPANIES.slice(15).map(makeTicker)).current;
 
-  // opening sequence: hold on the zoomed-in green arrow, then the camera zooms
-  // out; once it settles we flip to "market" (arrow fades, chart takes over)
+  // opening sequence: matrix rain first, then crossfade into the market screen
   useEffect(() => {
     const t = setTimeout(() => setPhase("market"), 2700);
     return () => clearTimeout(t);
+  }, []);
+
+  // matrix rain: falling green market glyphs, then it fades into the market
+  useEffect(() => {
+    const canvas = matrixRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    const setSize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    setSize();
+
+    const fontSize = 16;
+    const chars = "0123456789$€£¥%↑↓ABCDEFGHIJKLMNPRSTVXYZ";
+    let cols = Math.ceil(W / fontSize);
+    let drops = Array.from({ length: cols }, () => Math.random() * -60);
+
+    const onResize = () => {
+      setSize();
+      cols = Math.ceil(W / fontSize);
+      drops = Array.from({ length: cols }, () => Math.random() * -60);
+    };
+    window.addEventListener("resize", onResize);
+
+    const id = setInterval(() => {
+      // translucent black to fade previous glyphs into trails
+      ctx.fillStyle = "rgba(0,0,0,0.09)";
+      ctx.fillRect(0, 0, W, H);
+      ctx.font = `${fontSize}px "SFMono-Regular", Menlo, monospace`;
+      for (let i = 0; i < cols; i++) {
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        // bright leading glyph
+        ctx.fillStyle = "#d8ffe9";
+        ctx.fillText(chars[(Math.random() * chars.length) | 0], x, y);
+        // green trailing glyph
+        ctx.fillStyle = "#34d399";
+        ctx.fillText(chars[(Math.random() * chars.length) | 0], x, y - fontSize);
+        if (y > H && Math.random() > 0.975) drops[i] = Math.random() * -20;
+        drops[i]++;
+      }
+    }, 45);
+
+    // stop the rain shortly after it has faded out
+    const stop = setTimeout(() => clearInterval(id), 3500);
+
+    return () => {
+      clearInterval(id);
+      clearTimeout(stop);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   // the stock chart: after the zoom-out it "forms" by drawing itself left ->
@@ -192,10 +250,10 @@ export default function Intro({ onEnter }) {
       }
     }
 
-    // start forming just as the camera finishes pulling back
+    // start forming right after the matrix rain hands off to the market
     const startTimer = setTimeout(() => {
       raf = requestAnimationFrame(form);
-    }, 2600);
+    }, 2900);
 
     return () => {
       clearTimeout(startTimer);
@@ -205,7 +263,7 @@ export default function Intro({ onEnter }) {
   }, []);
 
   function enter() {
-    if (leaving || phase === "arrow") return;
+    if (leaving || phase !== "market") return;
     setLeaving(true);
     exitRef.current = setTimeout(onEnter, 900);
   }
@@ -228,9 +286,14 @@ export default function Intro({ onEnter }) {
       onClick={enter}
       aria-label="Enter site"
     >
-      {/* one stage the "camera" zooms out of: starts deep inside the arrow,
-          then scales down so the tapes + chart come into frame */}
-      <div className="intro-stage">
+      {/* opener: matrix rain, then it crossfades into the market screen */}
+      <canvas
+        ref={matrixRef}
+        className={`matrix-rain ${phase === "market" ? "gone" : ""}`}
+        aria-hidden="true"
+      />
+
+      <div className={`intro-stage ${phase === "market" ? "in" : ""}`}>
         <div className="strip-wrap top">
           <Strip items={topItems} />
         </div>
@@ -246,30 +309,6 @@ export default function Intro({ onEnter }) {
 
           <div className="chart-wrap">
             <canvas ref={canvasRef} className="live-chart" />
-
-            {/* zoomed-in green arrow; fades away as the chart forms */}
-            <div
-              className={`hero-arrow ${phase === "market" ? "gone" : ""}`}
-              aria-hidden="true"
-            >
-              <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
-                <line
-                  className="arrow-shaft"
-                  x1="44"
-                  y1="198"
-                  x2="176"
-                  y2="66"
-                  stroke="#34d399"
-                  strokeWidth="22"
-                  strokeLinecap="round"
-                />
-                <polygon
-                  className="arrow-head"
-                  points="210,32 146,50 192,96"
-                  fill="#34d399"
-                />
-              </svg>
-            </div>
 
             <div className="readout">
               <span className="readout-px" ref={pxRef}>1000.00</span>
