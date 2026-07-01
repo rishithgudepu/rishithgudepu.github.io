@@ -37,8 +37,13 @@ function Authors({ text }) {
   );
 }
 
-function SectionLabel({ children }) {
-  return <p className="section-label">{children}</p>;
+function SectionLabel({ n, children }) {
+  return (
+    <p className="section-label">
+      <span className="sec-num">{String(n).padStart(2, "0")}</span>
+      <span className="sec-text">{children}</span>
+    </p>
+  );
 }
 
 export default function App() {
@@ -102,7 +107,7 @@ export default function App() {
 
         {/* ABOUT */}
         <section id="about" className="block">
-          <SectionLabel>About</SectionLabel>
+          <SectionLabel n={1}>About</SectionLabel>
           <div className="about-grid">
             <div className="about-text">
               {about.map((p, i) => (
@@ -123,7 +128,7 @@ export default function App() {
 
         {/* EDUCATION */}
         <section id="education" className="block">
-          <SectionLabel>Education</SectionLabel>
+          <SectionLabel n={2}>Education</SectionLabel>
           <div className="edu edu-standalone">
             {education.map((e, i) => (
               <div className="edu-row" key={i}>
@@ -141,7 +146,7 @@ export default function App() {
 
         {/* EXPERIENCE */}
         <section id="experience" className="block">
-          <SectionLabel>Experience</SectionLabel>
+          <SectionLabel n={3}>Experience</SectionLabel>
           <div className="list">
             {experience.map((x, i) => (
               <div className="item" key={i}>
@@ -161,7 +166,7 @@ export default function App() {
 
         {/* PROJECTS */}
         <section id="projects" className="block">
-          <SectionLabel>Projects</SectionLabel>
+          <SectionLabel n={4}>Projects</SectionLabel>
           <div className="proj-grid">
             {projects.map((p, i) => (
               <a
@@ -186,7 +191,7 @@ export default function App() {
 
         {/* RESEARCH */}
         <section id="research" className="block">
-          <SectionLabel>Research</SectionLabel>
+          <SectionLabel n={5}>Research</SectionLabel>
           <div className="research-list">
             {research.map((r, i) => (
               <article className="paper" key={i}>
@@ -223,7 +228,7 @@ export default function App() {
 
         {/* CONTACT */}
         <section id="contact" className="block contact">
-          <SectionLabel>Contact</SectionLabel>
+          <SectionLabel n={6}>Contact</SectionLabel>
           <h2 className="contact-h">Let's build something.</h2>
           <div className="cta-row">
             <a href={`mailto:${profile.links.email}`} className="btn btn-primary">
