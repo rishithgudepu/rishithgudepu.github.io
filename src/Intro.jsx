@@ -81,7 +81,7 @@ export default function Intro({ onEnter }) {
           const pct = (change / t.price) * 100;
           return { dir, price, pct };
         });
-      }, 780);
+      }, 900);
     }, 2900);
     return () => {
       clearTimeout(start);
