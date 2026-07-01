@@ -6,7 +6,7 @@
 export const profile = {
   name: "Rishith Gudepu",
   badge: "IMSA '28",
-  tagline: "I build cool things.",
+  tagline: "My portfolio.",
   hero:
     "A high schooler who likes building startups, training models, and chasing down hard problems in finance, economics, and AI. Mostly, I just like making things that work.",
   location: "Greater Chicago Area",
