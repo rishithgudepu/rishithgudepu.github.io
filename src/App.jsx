@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Intro from "./Intro.jsx";
 import {
   profile,
   about,
@@ -40,8 +42,11 @@ function SectionLabel({ children }) {
 }
 
 export default function App() {
+  const [entered, setEntered] = useState(false);
+
   return (
     <div className="page">
+      {!entered && <Intro onEnter={() => setEntered(true)} />}
       <div className="glow glow-1" />
       <div className="glow glow-2" />
 
