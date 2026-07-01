@@ -383,11 +383,20 @@ body {
 }
 .ticker-item {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   padding: 0 26px;
   font-variant-numeric: tabular-nums;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.tk-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  object-fit: contain;
+  background: #fff;
+  padding: 1px;
+  flex: none;
 }
 .tk-sym { font-size: 13px; font-weight: 700; letter-spacing: 0.05em; color: #fff; }
 .tk-px { font-size: 13px; color: #cfd3cf; }
@@ -418,11 +427,65 @@ body {
 .readout-chg.up { color: #34d399; }
 .readout-chg.down { color: #f43f5e; }
 
+/* ---- opening: green arrow closeup, then zoom out ---- */
+.arrow-intro {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  animation: arrowBackdrop 2.1s ease forwards;
+}
+@keyframes arrowBackdrop {
+  0%, 62% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.arrow-svg {
+  width: min(360px, 70vw);
+  height: auto;
+  transform-origin: 74% 32%;
+  animation: arrowZoom 2.1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  filter: drop-shadow(0 0 40px rgba(52, 211, 153, 0.55));
+}
+@keyframes arrowZoom {
+  0%   { transform: scale(7); }
+  60%  { transform: scale(1); }
+  100% { transform: scale(0.9); }
+}
+.arrow-line {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: arrowDraw 1.1s ease forwards;
+}
+@keyframes arrowDraw {
+  to { stroke-dashoffset: 0; }
+}
+.arrow-head {
+  opacity: 0;
+  animation: arrowHeadIn 0.4s ease forwards;
+  animation-delay: 0.95s;
+}
+@keyframes arrowHeadIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 .intro-center {
   position: relative;
   z-index: 2;
   text-align: center;
   padding: 24px;
+  opacity: 0;
+  transform: scale(0.96);
+}
+.intro-center.in {
+  animation: marketReveal 0.9s ease 0.15s forwards;
+}
+@keyframes marketReveal {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 .intro-badge {
   display: inline-flex;

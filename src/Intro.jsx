@@ -1,19 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 
-const SYMBOLS = [
-  "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "META", "TSLA", "JPM", "GS", "BRK.B",
-  "V", "MA", "BAC", "MS", "BLK", "SPY", "QQQ", "XOM", "UNH", "LLY",
-  "AVGO", "COST", "HD", "NFLX", "AMD", "ORCL", "CRM", "COIN", "SCHW", "BX",
+// symbol -> company domain (used to pull a brand logo)
+const COMPANIES = [
+  ["AAPL", "apple.com"], ["MSFT", "microsoft.com"], ["NVDA", "nvidia.com"],
+  ["AMZN", "amazon.com"], ["GOOGL", "google.com"], ["META", "meta.com"],
+  ["TSLA", "tesla.com"], ["JPM", "jpmorganchase.com"], ["GS", "goldmansachs.com"],
+  ["V", "visa.com"], ["MA", "mastercard.com"], ["BAC", "bankofamerica.com"],
+  ["MS", "morganstanley.com"], ["BLK", "blackrock.com"], ["XOM", "exxonmobil.com"],
+  ["UNH", "unitedhealthgroup.com"], ["LLY", "lilly.com"], ["AVGO", "broadcom.com"],
+  ["COST", "costco.com"], ["HD", "homedepot.com"], ["NFLX", "netflix.com"],
+  ["AMD", "amd.com"], ["ORCL", "oracle.com"], ["CRM", "salesforce.com"],
+  ["COIN", "coinbase.com"], ["SCHW", "schwab.com"], ["BX", "blackstone.com"],
+  ["DIS", "disney.com"], ["KO", "coca-cola.com"], ["NKE", "nike.com"],
 ];
 
-function makeTicker(sym) {
+function makeTicker([sym, domain]) {
   const price = 20 + Math.random() * 900;
   const change = Math.random() * 6 - 3;
-  return { sym, price, change };
+  return { sym, domain, price, change };
+}
+
+function logoUrl(domain) {
+  return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 }
 
 function Strip({ items }) {
-  // duplicate the row so the marquee loops seamlessly
   const row = [...items, ...items];
   return (
     <div className="ticker-strip">
@@ -22,6 +33,13 @@ function Strip({ items }) {
           const up = t.change >= 0;
           return (
             <span className="ticker-item" key={i}>
+              <img
+                className="tk-logo"
+                src={logoUrl(t.domain)}
+                alt=""
+                loading="lazy"
+                onError={(e) => (e.currentTarget.style.display = "none")}
+              />
               <span className="tk-sym">{t.sym}</span>
               <span className="tk-px">{t.price.toFixed(2)}</span>
               <span className={`tk-chg ${up ? "up" : "down"}`}>
@@ -36,14 +54,21 @@ function Strip({ items }) {
 }
 
 export default function Intro({ onEnter }) {
+  const [phase, setPhase] = useState("arrow"); // "arrow" -> "market"
   const [leaving, setLeaving] = useState(false);
   const canvasRef = useRef(null);
   const pxRef = useRef(null);
   const chgRef = useRef(null);
   const exitRef = useRef(null);
 
-  const topItems = useRef(SYMBOLS.slice(0, 15).map(makeTicker)).current;
-  const botItems = useRef(SYMBOLS.slice(15).map(makeTicker)).current;
+  const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
+  const botItems = useRef(COMPANIES.slice(15).map(makeTicker)).current;
+
+  // opening: hold on the green arrow, then zoom out into the market view
+  useEffect(() => {
+    const t = setTimeout(() => setPhase("market"), 2100);
+    return () => clearTimeout(t);
+  }, []);
 
   // live scrolling line chart, green up / red down
   useEffect(() => {
@@ -68,7 +93,6 @@ export default function Intro({ onEnter }) {
 
     let frame = 0;
     function draw() {
-      // occasionally flip the underlying trend so it climbs and dips
       if (Math.random() < 0.03) trend = (Math.random() - 0.5) * 1.6;
       p += (Math.random() - 0.5) * 12 + trend;
       prices.push(p);
@@ -82,7 +106,6 @@ export default function Intro({ onEnter }) {
 
       ctx.clearRect(0, 0, W, H);
 
-      // faint grid
       ctx.strokeStyle = "rgba(255,255,255,0.05)";
       ctx.lineWidth = 1;
       for (let g = 0; g <= 4; g++) {
@@ -93,7 +116,6 @@ export default function Intro({ onEnter }) {
         ctx.stroke();
       }
 
-      // colored segments
       ctx.lineWidth = 2.2;
       ctx.lineJoin = "round";
       for (let i = 1; i < N; i++) {
@@ -104,7 +126,6 @@ export default function Intro({ onEnter }) {
         ctx.stroke();
       }
 
-      // leading dot
       const lastUp = prices[N - 1] >= prices[N - 2];
       const lx = (N - 1) * xstep;
       const ly = y(prices[N - 1]);
@@ -118,7 +139,6 @@ export default function Intro({ onEnter }) {
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      // update readout (throttled) without re-rendering React
       if (frame % 6 === 0 && pxRef.current && chgRef.current) {
         pxRef.current.textContent = prices[N - 1].toFixed(2);
         const pct = ((prices[N - 1] - prices[N - 2]) / prices[N - 2]) * 100;
@@ -134,7 +154,7 @@ export default function Intro({ onEnter }) {
   }, []);
 
   function enter() {
-    if (leaving) return;
+    if (leaving || phase === "arrow") return;
     setLeaving(true);
     exitRef.current = setTimeout(onEnter, 900);
   }
@@ -147,7 +167,7 @@ export default function Intro({ onEnter }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaving]);
+  }, [leaving, phase]);
 
   return (
     <div
@@ -157,11 +177,31 @@ export default function Intro({ onEnter }) {
       onClick={enter}
       aria-label="Enter site"
     >
+      {phase === "arrow" && (
+        <div className="arrow-intro" aria-hidden="true">
+          <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
+            <polyline
+              className="arrow-line"
+              points="20,190 70,150 105,172 150,110 195,70"
+              stroke="#34d399"
+              strokeWidth="14"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <polygon
+              className="arrow-head"
+              points="150,55 210,50 205,112"
+              fill="#34d399"
+            />
+          </svg>
+        </div>
+      )}
+
       <div className="strip-wrap top">
         <Strip items={topItems} />
       </div>
 
-      <div className="intro-center">
+      <div className={`intro-center ${phase === "market" ? "in" : ""}`}>
         <div className="intro-badge">
           <span className="live-dot" /> MARKETS OPEN
         </div>
