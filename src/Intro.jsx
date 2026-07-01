@@ -250,10 +250,10 @@ export default function Intro({ onEnter }) {
       }
     }
 
-    // start forming right after the matrix rain hands off to the market
+    // start forming as the floor screen rises in (rain fades out, then floor lifts)
     const startTimer = setTimeout(() => {
       raf = requestAnimationFrame(form);
-    }, 2900);
+    }, 3350);
 
     return () => {
       clearTimeout(startTimer);
