@@ -460,13 +460,8 @@ body {
   color: #34d399;
   transform-origin: 50% 50%;
   filter: drop-shadow(0 0 26px rgba(52, 211, 153, 0.55));
-  transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.5, 1),
-    color 0.28s ease, filter 0.28s ease;
-}
-.arrow-svg.down {
-  color: #f43f5e;
-  transform: rotate(90deg);
-  filter: drop-shadow(0 0 26px rgba(244, 63, 94, 0.5));
+  /* transform is driven per-frame in JS, so no transition on it */
+  transition: color 0.2s ease, filter 0.2s ease;
 }
 .arrow-readout {
   display: flex;

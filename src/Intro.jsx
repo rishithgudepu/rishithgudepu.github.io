@@ -56,8 +56,10 @@ function Strip({ items }) {
 export default function Intro({ onEnter }) {
   const [phase, setPhase] = useState("arrow"); // "arrow" -> "market"
   const [leaving, setLeaving] = useState(false);
-  const [tick, setTick] = useState({ dir: "up", price: 592.4, pct: 0.42 });
   const exitRef = useRef(null);
+  const arrowRef = useRef(null);
+  const pxRef = useRef(null);
+  const chgRef = useRef(null);
 
   const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
   const botItems = useRef(COMPANIES.slice(15).map(makeTicker)).current;
@@ -68,24 +70,64 @@ export default function Intro({ onEnter }) {
     return () => clearTimeout(t);
   }, []);
 
-  // once the zoom-out settles, the arrow starts reacting like a live ticker:
-  // flips up (green) / down (red) with a ticking price
+  // once the zoom-out settles, the arrow comes alive: it drifts up and down
+  // in real time following a simulated price — green + tilted up while rising,
+  // red + tilted down while falling. driven per-frame via refs (no re-renders).
   useEffect(() => {
-    let id;
+    const svg = arrowRef.current;
+    if (!svg) return;
+
+    const GREEN = "#34d399";
+    const RED = "#f43f5e";
+    const CENTER = 592;
+
+    let price = CENTER;
+    let vel = 0; // price velocity
+    let slope = 0.4; // smoothed direction
+    let rot = -12; // current tilt
+    let frame = 0;
+    let raf = 0;
+
+    const loop = () => {
+      // smooth mean-reverting random walk
+      vel += (Math.random() - 0.5) * 1.25;
+      vel *= 0.93;
+      price += vel;
+      price += (CENTER - price) * 0.012; // gentle pull back on-screen
+
+      slope = slope * 0.9 + vel * 0.1;
+      const up = slope >= 0;
+
+      // tilt: point up-right (~-12°) when rising, swing down-right (~90°) falling
+      const target = up ? -12 : 90;
+      rot += (target - rot) * 0.12;
+
+      // vertical travel: higher price -> higher on screen
+      const y = Math.max(-88, Math.min(88, -(price - CENTER) * 2.4));
+
+      svg.style.transform = `translateY(${y}px) rotate(${rot}deg)`;
+      svg.style.color = up ? GREEN : RED;
+      svg.style.filter = up
+        ? "drop-shadow(0 0 26px rgba(52,211,153,0.55))"
+        : "drop-shadow(0 0 26px rgba(244,63,94,0.5))";
+
+      if (frame % 6 === 0 && pxRef.current && chgRef.current) {
+        pxRef.current.textContent = price.toFixed(2);
+        const pct = (vel / price) * 100;
+        chgRef.current.textContent =
+          (up ? "▲ " : "▼ ") + Math.abs(pct).toFixed(2) + "%";
+        chgRef.current.style.color = up ? GREEN : RED;
+      }
+      frame++;
+      raf = requestAnimationFrame(loop);
+    };
+
     const start = setTimeout(() => {
-      id = setInterval(() => {
-        setTick((t) => {
-          const change = (Math.random() - 0.44) * 7; // slight upward bias
-          const dir = change >= 0 ? "up" : "down";
-          const price = Math.max(60, t.price + change);
-          const pct = (change / t.price) * 100;
-          return { dir, price, pct };
-        });
-      }, 900);
-    }, 2900);
+      raf = requestAnimationFrame(loop);
+    }, 2600);
     return () => {
       clearTimeout(start);
-      clearInterval(id);
+      cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -133,7 +175,8 @@ export default function Intro({ onEnter }) {
               reacts like a live ticker — flips up (green) / down (red) */}
           <div className="hero-arrow">
             <svg
-              className={`arrow-svg ${tick.dir}`}
+              ref={arrowRef}
+              className="arrow-svg"
               viewBox="0 0 240 240"
               fill="none"
               aria-hidden="true"
@@ -155,10 +198,8 @@ export default function Intro({ onEnter }) {
               />
             </svg>
             <div className="arrow-readout">
-              <span className="ar-px">{tick.price.toFixed(2)}</span>
-              <span className={`ar-chg ${tick.dir}`}>
-                {tick.dir === "up" ? "▲" : "▼"} {Math.abs(tick.pct).toFixed(2)}%
-              </span>
+              <span className="ar-px" ref={pxRef}>592.40</span>
+              <span className="ar-chg up" ref={chgRef}>▲ 0.42%</span>
             </div>
           </div>
 
