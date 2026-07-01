@@ -472,7 +472,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: #000;
+  background: #050914;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -536,13 +536,13 @@ body {
 
 .ticker-strip {
   height: 46px;
-  background: #050505;
+  background: #091124;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   overflow: hidden;
   display: flex;
   align-items: center;
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 24px rgba(3, 6, 16, 0.85);
 }
 .ticker-track {
   display: flex;
@@ -679,7 +679,7 @@ body {
   text-shadow: 0 6px 60px rgba(0, 0, 0, 0.9);
 }
 .intro-grad {
-  background: var(--grad);
+  background: var(--grad-page);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
