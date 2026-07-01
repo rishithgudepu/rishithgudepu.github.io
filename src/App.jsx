@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Intro from "./Intro.jsx";
 import {
   profile,
@@ -15,7 +15,7 @@ const nav = [
   ["Education", "education"],
   ["Experience", "experience"],
   ["Projects", "projects"],
-  ["Research & Awards", "research"],
+  ["Research", "research"],
   ["Contact", "contact"],
 ];
 
@@ -48,6 +48,28 @@ function SectionLabel({ n, children }) {
 
 export default function App() {
   const [entered, setEntered] = useState(false);
+  const [active, setActive] = useState("about");
+
+  // active-section highlight for the sidebar nav
+  useEffect(() => {
+    if (!entered) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+    );
+    nav.forEach(([, id]) => {
+      const el = document.getElementById(id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, [entered]);
+
+  const first = profile.name.split(" ")[0];
+  const last = profile.name.split(" ").slice(1).join(" ");
 
   return (
     <div className="page">
@@ -55,60 +77,61 @@ export default function App() {
       <div className="glow glow-1" />
       <div className="glow glow-2" />
 
-      <header className="nav">
-        <a href="#top" className="brand">
-          {profile.name}
-        </a>
-        <nav className="nav-links">
-          {nav.map(([label, id]) => (
-            <a key={id} href={`#${id}`}>
-              {label}
-            </a>
-          ))}
-        </nav>
-      </header>
+      <div className="shell" id="top">
+        {/* ============ SIDEBAR ============ */}
+        <aside className="side">
+          <div className="side-top">
+            <div className="badge">
+              <span className="ring" />
+              {profile.badge}
+            </div>
 
-      <main className="container" id="top">
-        {/* HERO */}
-        <section className="hero">
-          <div className="badge">
-            <span className="ring" />
-            {profile.badge}
+            <a href="#top" className="side-name">
+              {first}
+              <br />
+              <span className="grad">{last}.</span>
+            </a>
+
+            <p className="side-role">Finance · Markets · AI</p>
+            <p className="side-bio">{profile.hero}</p>
+
+            <nav className="side-nav">
+              {nav.map(([label, id], i) => (
+                <a
+                  key={id}
+                  href={`#${id}`}
+                  className={active === id ? "active" : ""}
+                >
+                  <span className="nav-idx">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="nav-line" />
+                  <span className="nav-label">{label}</span>
+                </a>
+              ))}
+            </nav>
           </div>
-          <h1 className="name">
-            {profile.name.split(" ")[0]}{" "}
-            <span className="grad">{profile.name.split(" ").slice(1).join(" ")}.</span>
-          </h1>
-          {profile.tagline && <p className="tagline">{profile.tagline}</p>}
-          <p className="hero-bio">{profile.hero}</p>
 
-          <div className="cta-row">
-            <a href="#research" className="btn btn-primary">
-              View research
-            </a>
-            {profile.links.linkedin && (
-              <a
-                href={profile.links.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-ghost"
-              >
-                LinkedIn ↗
-              </a>
-            )}
-            <a href={`mailto:${profile.links.email}`} className="btn btn-ghost">
-              Email
-            </a>
+          <div className="side-foot">
+            <div className="side-links">
+              {profile.links.linkedin && (
+                <a
+                  href={profile.links.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LinkedIn ↗
+                </a>
+              )}
+              <a href={`mailto:${profile.links.email}`}>Email ↗</a>
+            </div>
+            <p className="side-loc">◈ {profile.location}</p>
           </div>
-          <p className="loc">{profile.location}</p>
-        </section>
+        </aside>
 
-        <hr className="rule" />
-
-        {/* ABOUT */}
-        <section id="about" className="block">
-          <SectionLabel n={1}>About</SectionLabel>
-          <div className="about-grid">
+        {/* ============ CONTENT ============ */}
+        <main className="main">
+          {/* ABOUT */}
+          <section id="about" className="block">
+            <SectionLabel n={1}>About</SectionLabel>
             <div className="about-text">
               {about.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -121,136 +144,133 @@ export default function App() {
                 </span>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        <hr className="rule" />
-
-        {/* EDUCATION */}
-        <section id="education" className="block">
-          <SectionLabel n={2}>Education</SectionLabel>
-          <div className="edu edu-standalone">
-            {education.map((e, i) => (
-              <div className="edu-row" key={i}>
-                <div>
-                  <p className="edu-school">{e.school}</p>
-                  <p className="edu-loc">{e.location}</p>
+          {/* EDUCATION */}
+          <section id="education" className="block">
+            <SectionLabel n={2}>Education</SectionLabel>
+            <div className="ledger">
+              {education.map((e, i) => (
+                <div className="ledger-row" key={i}>
+                  <span className="ledger-date">{e.dates}</span>
+                  <div className="ledger-body">
+                    <p className="ledger-title">{e.school}</p>
+                    <p className="ledger-sub">{e.location}</p>
+                  </div>
                 </div>
-                <span className="dates">{e.dates}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        <hr className="rule" />
-
-        {/* EXPERIENCE */}
-        <section id="experience" className="block">
-          <SectionLabel n={3}>Experience</SectionLabel>
-          <div className="list">
-            {experience.map((x, i) => (
-              <div className="item" key={i}>
-                <div className="item-head">
-                  <h3>
-                    {x.role} <span className="at">· {x.org}</span>
-                  </h3>
-                  <span className="dates">{x.dates}</span>
+          {/* EXPERIENCE */}
+          <section id="experience" className="block">
+            <SectionLabel n={3}>Experience</SectionLabel>
+            <div className="ledger">
+              {experience.map((x, i) => (
+                <div className="ledger-row" key={i}>
+                  <span className="ledger-date">{x.dates}</span>
+                  <div className="ledger-body">
+                    <p className="ledger-title">
+                      {x.role} <span className="at">· {x.org}</span>
+                    </p>
+                    <p className="ledger-blurb">{x.blurb}</p>
+                  </div>
                 </div>
-                <p className="item-blurb">{x.blurb}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        <hr className="rule" />
+          {/* PROJECTS */}
+          <section id="projects" className="block">
+            <SectionLabel n={4}>Projects</SectionLabel>
+            <div className="proj-grid">
+              {projects.map((p, i) => (
+                <a
+                  key={i}
+                  className="proj-card"
+                  href={p.url || "#"}
+                  target={p.url ? "_blank" : undefined}
+                  rel="noreferrer"
+                >
+                  <div className="proj-top">
+                    <h3>{p.name}</h3>
+                    {p.url && <span className="arrow">↗</span>}
+                  </div>
+                  <p className="proj-role">{p.role}</p>
+                  <p className="proj-blurb">{p.blurb}</p>
+                </a>
+              ))}
+            </div>
+          </section>
 
-        {/* PROJECTS */}
-        <section id="projects" className="block">
-          <SectionLabel n={4}>Projects</SectionLabel>
-          <div className="proj-grid">
-            {projects.map((p, i) => (
+          {/* RESEARCH */}
+          <section id="research" className="block">
+            <SectionLabel n={5}>Research</SectionLabel>
+            <div className="research-list">
+              {research.map((r, i) => (
+                <article className="paper" key={i}>
+                  <div className="paper-head">
+                    <h3 className="paper-title">
+                      {r.url ? (
+                        <a href={r.url} target="_blank" rel="noreferrer">
+                          {r.title}
+                        </a>
+                      ) : (
+                        r.title
+                      )}
+                    </h3>
+                    {r.year && <span className="year-pill">{r.year}</span>}
+                  </div>
+                  <p className="paper-authors">
+                    <Authors text={r.authors} />
+                  </p>
+                  {r.venue && <p className="paper-venue">{r.venue}</p>}
+                  <p className="paper-abstract">{r.abstract}</p>
+                  <div className="tag-row">
+                    {r.tags.map((t) => (
+                      <span key={t} className="tag">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          {/* CONTACT */}
+          <section id="contact" className="block contact">
+            <SectionLabel n={6}>Contact</SectionLabel>
+            <h2 className="contact-h">Let's build something.</h2>
+            <p className="contact-sub">
+              Open to research, internships, and interesting problems in
+              finance, markets, and AI.
+            </p>
+            <div className="cta-row">
               <a
-                key={i}
-                className="proj-card"
-                href={p.url || "#"}
-                target={p.url ? "_blank" : undefined}
-                rel="noreferrer"
+                href={`mailto:${profile.links.email}`}
+                className="btn btn-primary"
               >
-                <div className="proj-top">
-                  <h3>{p.name}</h3>
-                  {p.url && <span className="arrow">↗</span>}
-                </div>
-                <p className="proj-role">{p.role}</p>
-                <p className="item-blurb">{p.blurb}</p>
+                {profile.links.email}
               </a>
-            ))}
-          </div>
-        </section>
+              {profile.links.linkedin && (
+                <a
+                  href={profile.links.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn btn-ghost"
+                >
+                  LinkedIn ↗
+                </a>
+              )}
+            </div>
 
-        <hr className="rule" />
-
-        {/* RESEARCH */}
-        <section id="research" className="block">
-          <SectionLabel n={5}>Research</SectionLabel>
-          <div className="research-list">
-            {research.map((r, i) => (
-              <article className="paper" key={i}>
-                <div className="paper-head">
-                  <h3 className="paper-title">
-                    {r.url ? (
-                      <a href={r.url} target="_blank" rel="noreferrer">
-                        {r.title}
-                      </a>
-                    ) : (
-                      r.title
-                    )}
-                  </h3>
-                  {r.year && <span className="year-pill">{r.year}</span>}
-                </div>
-                <p className="paper-authors">
-                  <Authors text={r.authors} />
-                </p>
-                {r.venue && <p className="paper-venue">{r.venue}</p>}
-                <p className="paper-abstract">{r.abstract}</p>
-                <div className="tag-row">
-                  {r.tags.map((t) => (
-                    <span key={t} className="tag">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <hr className="rule" />
-
-        {/* CONTACT */}
-        <section id="contact" className="block contact">
-          <SectionLabel n={6}>Contact</SectionLabel>
-          <h2 className="contact-h">Let's build something.</h2>
-          <div className="cta-row">
-            <a href={`mailto:${profile.links.email}`} className="btn btn-primary">
-              {profile.links.email}
-            </a>
-            {profile.links.linkedin && (
-              <a
-                href={profile.links.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-ghost"
-              >
-                LinkedIn ↗
-              </a>
-            )}
-          </div>
-        </section>
-
-        <footer className="foot">
-          © {new Date().getFullYear()} {profile.name}. {profile.location}.
-        </footer>
-      </main>
+            <footer className="foot">
+              © {new Date().getFullYear()} {profile.name} · Built from scratch.
+            </footer>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }
