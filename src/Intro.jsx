@@ -57,77 +57,150 @@ export default function Intro({ onEnter }) {
   const [phase, setPhase] = useState("arrow"); // "arrow" -> "market"
   const [leaving, setLeaving] = useState(false);
   const exitRef = useRef(null);
-  const arrowRef = useRef(null);
+  const canvasRef = useRef(null);
   const pxRef = useRef(null);
   const chgRef = useRef(null);
 
   const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
   const botItems = useRef(COMPANIES.slice(15).map(makeTicker)).current;
 
-  // opening: hold on the green arrow, then the camera zooms out into the market
+  // opening sequence: hold on the zoomed-in green arrow, then the camera zooms
+  // out; once it settles we flip to "market" (arrow fades, chart takes over)
   useEffect(() => {
-    const t = setTimeout(() => setPhase("market"), 2800);
+    const t = setTimeout(() => setPhase("market"), 2700);
     return () => clearTimeout(t);
   }, []);
 
-  // once the zoom-out settles, the arrow comes alive: it drifts up and down
-  // in real time following a simulated price — green + tilted up while rising,
-  // red + tilted down while falling. driven per-frame via refs (no re-renders).
+  // the stock chart: after the zoom-out it "forms" by drawing itself left ->
+  // right, then goes live and keeps scrolling (green up / red down)
   useEffect(() => {
-    const svg = arrowRef.current;
-    if (!svg) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.clientWidth;
+    const H = canvas.clientHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
 
-    const GREEN = "#34d399";
-    const RED = "#f43f5e";
-    const CENTER = 592;
+    const N = 120;
+    const pad = 16;
+    const xstep = W / (N - 1);
 
-    let price = CENTER;
-    let vel = 0; // price velocity
-    let slope = 0.4; // smoothed direction
-    let rot = -12; // current tilt
-    let frame = 0;
-    let raf = 0;
+    // pre-build a good-looking, gently trending series
+    const series = [];
+    let p = 1000;
+    let trend = 0.5;
+    for (let i = 0; i < N; i++) {
+      if (Math.random() < 0.05) trend = (Math.random() - 0.4) * 1.8;
+      p += (Math.random() - 0.5) * 12 + trend;
+      series.push(p);
+    }
 
-    const loop = () => {
-      // smooth mean-reverting random walk
-      vel += (Math.random() - 0.5) * 1.25;
-      vel *= 0.93;
-      price += vel;
-      price += (CENTER - price) * 0.012; // gentle pull back on-screen
+    function render(count) {
+      const view = series.slice(0, count);
+      if (view.length < 2) return;
+      const min = Math.min(...view);
+      const max = Math.max(...view);
+      const y = (v) => pad + (H - 2 * pad) * (1 - (v - min) / (max - min || 1));
 
-      slope = slope * 0.9 + vel * 0.1;
-      const up = slope >= 0;
+      ctx.clearRect(0, 0, W, H);
 
-      // tilt: point up-right (~-12°) when rising, swing down-right (~90°) falling
-      const target = up ? -12 : 90;
-      rot += (target - rot) * 0.12;
-
-      // vertical travel: higher price -> higher on screen
-      const y = Math.max(-88, Math.min(88, -(price - CENTER) * 2.4));
-
-      svg.style.transform = `translateY(${y}px) rotate(${rot}deg)`;
-      svg.style.color = up ? GREEN : RED;
-      svg.style.filter = up
-        ? "drop-shadow(0 0 26px rgba(52,211,153,0.55))"
-        : "drop-shadow(0 0 26px rgba(244,63,94,0.5))";
-
-      if (frame % 6 === 0 && pxRef.current && chgRef.current) {
-        pxRef.current.textContent = price.toFixed(2);
-        const pct = (vel / price) * 100;
-        chgRef.current.textContent =
-          (up ? "▲ " : "▼ ") + Math.abs(pct).toFixed(2) + "%";
-        chgRef.current.style.color = up ? GREEN : RED;
+      // gridlines
+      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.lineWidth = 1;
+      for (let g = 0; g <= 4; g++) {
+        const gy = pad + ((H - 2 * pad) * g) / 4;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(W, gy);
+        ctx.stroke();
       }
-      frame++;
-      raf = requestAnimationFrame(loop);
-    };
 
-    const start = setTimeout(() => {
-      raf = requestAnimationFrame(loop);
+      // soft area fill under the curve
+      const lastX = (view.length - 1) * xstep;
+      ctx.beginPath();
+      ctx.moveTo(0, y(view[0]));
+      for (let i = 1; i < view.length; i++) ctx.lineTo(i * xstep, y(view[i]));
+      ctx.lineTo(lastX, H);
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, "rgba(52,211,153,0.18)");
+      grad.addColorStop(1, "rgba(52,211,153,0)");
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // the line, colored per segment
+      ctx.lineWidth = 2.4;
+      ctx.lineJoin = "round";
+      for (let i = 1; i < view.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo((i - 1) * xstep, y(view[i - 1]));
+        ctx.lineTo(i * xstep, y(view[i]));
+        ctx.strokeStyle = view[i] >= view[i - 1] ? "#34d399" : "#f43f5e";
+        ctx.stroke();
+      }
+
+      // leading dot with glow
+      const lastUp = view[view.length - 1] >= view[view.length - 2];
+      const ly = y(view[view.length - 1]);
+      ctx.fillStyle = lastUp ? "#34d399" : "#f43f5e";
+      ctx.beginPath();
+      ctx.arc(lastX, ly, 3.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 0.22;
+      ctx.beginPath();
+      ctx.arc(lastX, ly, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // readout
+      if (pxRef.current && chgRef.current) {
+        pxRef.current.textContent = view[view.length - 1].toFixed(2);
+        const pct =
+          ((view[view.length - 1] - view[view.length - 2]) /
+            view[view.length - 2]) *
+          100;
+        chgRef.current.textContent =
+          (lastUp ? "▲ " : "▼ ") + Math.abs(pct).toFixed(2) + "%";
+        chgRef.current.className = "readout-chg " + (lastUp ? "up" : "down");
+      }
+    }
+
+    let raf = 0;
+    let formStart = 0;
+    let liveId = 0;
+
+    function form(ts) {
+      if (!formStart) formStart = ts;
+      const t = Math.min(1, (ts - formStart) / 1300); // ~1.3s to draw in
+      const ease = 1 - Math.pow(1 - t, 3);
+      render(Math.max(2, Math.floor(ease * N)));
+      if (t < 1) {
+        raf = requestAnimationFrame(form);
+      } else {
+        // go live: push a new tick, scroll the window
+        liveId = setInterval(() => {
+          if (Math.random() < 0.04) trend = (Math.random() - 0.45) * 1.8;
+          p += (Math.random() - 0.5) * 12 + trend;
+          series.push(p);
+          series.shift();
+          render(N);
+        }, 60);
+      }
+    }
+
+    // start forming just as the camera finishes pulling back
+    const startTimer = setTimeout(() => {
+      raf = requestAnimationFrame(form);
     }, 2600);
+
     return () => {
-      clearTimeout(start);
+      clearTimeout(startTimer);
       cancelAnimationFrame(raf);
+      clearInterval(liveId);
     };
   }, []);
 
@@ -155,8 +228,8 @@ export default function Intro({ onEnter }) {
       onClick={enter}
       aria-label="Enter site"
     >
-      {/* one stage that the "camera" zooms out of: starts deep inside the
-          arrow, then scales down so the tapes + chart slide into frame */}
+      {/* one stage the "camera" zooms out of: starts deep inside the arrow,
+          then scales down so the tapes + chart come into frame */}
       <div className="intro-stage">
         <div className="strip-wrap top">
           <Strip items={topItems} />
@@ -171,35 +244,36 @@ export default function Intro({ onEnter }) {
           </h1>
           <p className="intro-sub">Finance · Markets · AI</p>
 
-          {/* the camera's focal point: one straight arrow that stays put and
-              reacts like a live ticker — flips up (green) / down (red) */}
-          <div className="hero-arrow">
-            <svg
-              ref={arrowRef}
-              className="arrow-svg"
-              viewBox="0 0 240 240"
-              fill="none"
+          <div className="chart-wrap">
+            <canvas ref={canvasRef} className="live-chart" />
+
+            {/* zoomed-in green arrow; fades away as the chart forms */}
+            <div
+              className={`hero-arrow ${phase === "market" ? "gone" : ""}`}
               aria-hidden="true"
             >
-              <line
-                className="arrow-shaft"
-                x1="44"
-                y1="198"
-                x2="176"
-                y2="66"
-                stroke="currentColor"
-                strokeWidth="22"
-                strokeLinecap="round"
-              />
-              <polygon
-                className="arrow-head"
-                points="210,32 146,50 192,96"
-                fill="currentColor"
-              />
-            </svg>
-            <div className="arrow-readout">
-              <span className="ar-px" ref={pxRef}>592.40</span>
-              <span className="ar-chg up" ref={chgRef}>▲ 0.42%</span>
+              <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
+                <line
+                  className="arrow-shaft"
+                  x1="44"
+                  y1="198"
+                  x2="176"
+                  y2="66"
+                  stroke="#34d399"
+                  strokeWidth="22"
+                  strokeLinecap="round"
+                />
+                <polygon
+                  className="arrow-head"
+                  points="210,32 146,50 192,96"
+                  fill="#34d399"
+                />
+              </svg>
+            </div>
+
+            <div className="readout">
+              <span className="readout-px" ref={pxRef}>1000.00</span>
+              <span className="readout-chg up" ref={chgRef}>▲ 0.00%</span>
             </div>
           </div>
 
