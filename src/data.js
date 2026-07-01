@@ -69,6 +69,13 @@ export const experience = [
     dates: "March 2026 – Present",
   },
   {
+    role: "Business Operations Intern",
+    org: "Vivantal",
+    blurb:
+      "Organizing internal business processes, analyzing operational data, and assisting with team financial budgets.",
+    dates: "December 2025 – Present",
+  },
+  {
     role: "Equities & Investments Intern",
     org: "Hydra Fund",
     blurb:
