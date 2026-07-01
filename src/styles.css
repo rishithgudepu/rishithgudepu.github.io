@@ -446,43 +446,34 @@ body {
 .readout-chg.up { color: #34d399; }
 .readout-chg.down { color: #f43f5e; }
 
-/* ---- opening: green arrow sits over the chart, fades as camera pulls back ---- */
-.arrow-overlay {
-  position: absolute;
-  inset: -60% -6%;
-  z-index: 6;
+/* ---- opening: one straight green arrow, stays put while the camera zooms out ---- */
+.hero-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
-  pointer-events: none;
-  animation: arrowFade 2.8s ease forwards;
-}
-@keyframes arrowFade {
-  0%, 34% { opacity: 1; }
-  58%, 100% { opacity: 0; }
+  margin: 26px auto 8px;
 }
 .arrow-svg {
-  width: min(220px, 60vw);
+  width: min(200px, 52vw);
   height: auto;
-  filter: drop-shadow(0 0 24px rgba(52, 211, 153, 0.6));
+  filter: drop-shadow(0 0 26px rgba(52, 211, 153, 0.55));
 }
-.arrow-line {
-  stroke-dasharray: 420;
-  stroke-dashoffset: 420;
-  animation: arrowDraw 1.2s ease forwards;
+.arrow-shaft {
+  stroke-dasharray: 190;
+  stroke-dashoffset: 190;
+  animation: arrowDraw 0.9s ease forwards;
 }
 @keyframes arrowDraw {
   to { stroke-dashoffset: 0; }
 }
 .arrow-head {
   opacity: 0;
-  transform-origin: 180px 80px;
-  animation: arrowHeadIn 0.4s ease forwards;
-  animation-delay: 1s;
+  transform-origin: 180px 60px;
+  animation: arrowHeadIn 0.35s ease forwards;
+  animation-delay: 0.85s;
 }
 @keyframes arrowHeadIn {
-  from { opacity: 0; transform: scale(0.6); }
+  from { opacity: 0; transform: scale(0.5); }
   to   { opacity: 1; transform: scale(1); }
 }
 
