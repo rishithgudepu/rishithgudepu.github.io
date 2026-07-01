@@ -101,18 +101,18 @@ export default function Intro({ onEnter }) {
     window.addEventListener("resize", onResize);
 
     const id = setInterval(() => {
-      // translucent black to fade previous glyphs into trails
-      ctx.fillStyle = "rgba(0,0,0,0.09)";
+      // translucent navy to fade previous glyphs into trails
+      ctx.fillStyle = "rgba(5,9,20,0.10)";
       ctx.fillRect(0, 0, W, H);
       ctx.font = `${fontSize}px "SFMono-Regular", Menlo, monospace`;
       for (let i = 0; i < cols; i++) {
         const x = i * fontSize;
         const y = drops[i] * fontSize;
-        // bright leading glyph
-        ctx.fillStyle = "#d8ffe9";
+        // bright leading glyph (cream white)
+        ctx.fillStyle = "#f7f9fd";
         ctx.fillText(chars[(Math.random() * chars.length) | 0], x, y);
-        // green trailing glyph
-        ctx.fillStyle = "#34d399";
+        // dimmer cream trailing glyph
+        ctx.fillStyle = "rgba(247,249,253,0.45)";
         ctx.fillText(chars[(Math.random() * chars.length) | 0], x, y - fontSize);
         if (y > H && Math.random() > 0.975) drops[i] = Math.random() * -20;
         drops[i]++;

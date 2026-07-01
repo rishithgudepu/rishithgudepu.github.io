@@ -70,6 +70,7 @@ export default function App() {
 
   const first = profile.name.split(" ")[0];
   const last = profile.name.split(" ").slice(1).join(" ");
+  const RADIUS = 40; // vmin
 
   return (
     <div className="page">
@@ -77,57 +78,51 @@ export default function App() {
       <div className="glow glow-1" />
       <div className="glow glow-2" />
 
-      <div className="shell" id="top">
-        {/* ============ SIDEBAR ============ */}
-        <aside className="side">
-          <div className="side-top">
-            <div className="badge">
-              <span className="ring" />
-              {profile.badge}
-            </div>
+      {/* ============ RADIAL HUB ============ */}
+      <section className="hub" id="top">
+        <div className="hub-rings" aria-hidden="true">
+          <span className="hub-ring r1" />
+          <span className="hub-ring r2" />
+          <span className="hub-ring r3" />
+        </div>
 
-            <a href="#top" className="side-name">
-              {first}
-              <br />
-              <span className="grad">{last}.</span>
-            </a>
-
-            <p className="side-role">Finance · Markets · AI</p>
-            <p className="side-bio">{profile.hero}</p>
-
-            <nav className="side-nav">
-              {nav.map(([label, id], i) => (
-                <a
-                  key={id}
-                  href={`#${id}`}
-                  className={active === id ? "active" : ""}
-                >
-                  <span className="nav-idx">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="nav-line" />
-                  <span className="nav-label">{label}</span>
-                </a>
-              ))}
-            </nav>
+        <div className="hub-center">
+          <div className="badge">
+            <span className="ring" />
+            {profile.badge}
           </div>
+          <h1 className="hub-name">
+            {first} <span className="grad">{last}.</span>
+          </h1>
+          <p className="hub-role">Finance · Markets · AI</p>
+          <p className="hub-about">{profile.hero}</p>
+          <a href="#about" className="scroll-hint">
+            Explore <span className="sh-arrow">↓</span>
+          </a>
+        </div>
 
-          <div className="side-foot">
-            <div className="side-links">
-              {profile.links.linkedin && (
-                <a
-                  href={profile.links.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  LinkedIn ↗
-                </a>
-              )}
-              <a href={`mailto:${profile.links.email}`}>Email ↗</a>
-            </div>
-            <p className="side-loc">◈ {profile.location}</p>
-          </div>
-        </aside>
+        <nav className="hub-links">
+          {nav.map(([label, id], i) => {
+            const a = ((-90 + i * 60) * Math.PI) / 180;
+            const x = (RADIUS * Math.cos(a)).toFixed(2);
+            const y = (RADIUS * Math.sin(a)).toFixed(2);
+            return (
+              <a
+                key={id}
+                href={`#${id}`}
+                className={`hub-link ${active === id ? "active" : ""}`}
+                style={{ "--x": x, "--y": y }}
+              >
+                <span className="hl-num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="hl-pill">{label}</span>
+              </a>
+            );
+          })}
+        </nav>
+      </section>
 
-        {/* ============ CONTENT ============ */}
+      {/* ============ CONTENT ============ */}
+      <div className="shell">
         <main className="main">
           {/* ABOUT */}
           <section id="about" className="block">
