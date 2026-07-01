@@ -349,6 +349,24 @@ body {
   pointer-events: none;
 }
 
+/* the "camera": one stage that starts deep inside the arrow and zooms out,
+   so the ticker tapes + chart slide into frame as a single move */
+.intro-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 50% 50%;
+  animation: camZoom 2.8s cubic-bezier(0.62, 0, 0.2, 1) forwards;
+  will-change: transform;
+}
+@keyframes camZoom {
+  0%   { transform: scale(6.5); }
+  100% { transform: scale(1); }
+}
+
 /* ---- scrolling ticker strips (top + bottom, inset) ---- */
 .strip-wrap {
   position: absolute;
@@ -406,6 +424,7 @@ body {
 
 /* ---- live chart ---- */
 .chart-wrap {
+  position: relative;
   margin: 30px auto 4px;
   width: min(560px, 84vw);
 }
@@ -427,45 +446,40 @@ body {
 .readout-chg.up { color: #34d399; }
 .readout-chg.down { color: #f43f5e; }
 
-/* ---- opening: green arrow closeup, then zoom out ---- */
-.arrow-intro {
+/* ---- opening: green arrow sits over the chart, fades as camera pulls back ---- */
+.arrow-overlay {
   position: absolute;
-  inset: 0;
-  z-index: 5;
+  inset: -60% -6%;
+  z-index: 6;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #000;
-  animation: arrowBackdrop 2.1s ease forwards;
+  pointer-events: none;
+  animation: arrowFade 2.8s ease forwards;
 }
-@keyframes arrowBackdrop {
-  0%, 62% { opacity: 1; }
-  100% { opacity: 0; }
+@keyframes arrowFade {
+  0%, 34% { opacity: 1; }
+  58%, 100% { opacity: 0; }
 }
 .arrow-svg {
-  width: min(360px, 70vw);
+  width: min(220px, 60vw);
   height: auto;
-  transform-origin: 74% 32%;
-  animation: arrowZoom 2.1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  filter: drop-shadow(0 0 40px rgba(52, 211, 153, 0.55));
-}
-@keyframes arrowZoom {
-  0%   { transform: scale(7); }
-  60%  { transform: scale(1); }
-  100% { transform: scale(0.9); }
+  filter: drop-shadow(0 0 24px rgba(52, 211, 153, 0.6));
 }
 .arrow-line {
   stroke-dasharray: 420;
   stroke-dashoffset: 420;
-  animation: arrowDraw 1.1s ease forwards;
+  animation: arrowDraw 1.2s ease forwards;
 }
 @keyframes arrowDraw {
   to { stroke-dashoffset: 0; }
 }
 .arrow-head {
   opacity: 0;
+  transform-origin: 180px 80px;
   animation: arrowHeadIn 0.4s ease forwards;
-  animation-delay: 0.95s;
+  animation-delay: 1s;
 }
 @keyframes arrowHeadIn {
   from { opacity: 0; transform: scale(0.6); }
@@ -477,15 +491,6 @@ body {
   z-index: 2;
   text-align: center;
   padding: 24px;
-  opacity: 0;
-  transform: scale(0.96);
-}
-.intro-center.in {
-  animation: marketReveal 0.9s ease 0.15s forwards;
-}
-@keyframes marketReveal {
-  from { opacity: 0; transform: scale(0.96); }
-  to   { opacity: 1; transform: scale(1); }
 }
 .intro-badge {
   display: inline-flex;

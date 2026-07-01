@@ -64,9 +64,9 @@ export default function Intro({ onEnter }) {
   const topItems = useRef(COMPANIES.slice(0, 15).map(makeTicker)).current;
   const botItems = useRef(COMPANIES.slice(15).map(makeTicker)).current;
 
-  // opening: hold on the green arrow, then zoom out into the market view
+  // opening: hold on the green arrow, then the camera zooms out into the market
   useEffect(() => {
-    const t = setTimeout(() => setPhase("market"), 2100);
+    const t = setTimeout(() => setPhase("market"), 2800);
     return () => clearTimeout(t);
   }, []);
 
@@ -177,55 +177,59 @@ export default function Intro({ onEnter }) {
       onClick={enter}
       aria-label="Enter site"
     >
-      {phase === "arrow" && (
-        <div className="arrow-intro" aria-hidden="true">
-          <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
-            <polyline
-              className="arrow-line"
-              points="20,190 70,150 105,172 150,110 195,70"
-              stroke="#34d399"
-              strokeWidth="14"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <polygon
-              className="arrow-head"
-              points="150,55 210,50 205,112"
-              fill="#34d399"
-            />
-          </svg>
+      {/* one stage that the "camera" zooms out of: starts deep inside the
+          arrow, then scales down so the tapes + chart slide into frame */}
+      <div className="intro-stage">
+        <div className="strip-wrap top">
+          <Strip items={topItems} />
         </div>
-      )}
 
-      <div className="strip-wrap top">
-        <Strip items={topItems} />
-      </div>
-
-      <div className={`intro-center ${phase === "market" ? "in" : ""}`}>
-        <div className="intro-badge">
-          <span className="live-dot" /> MARKETS OPEN
-        </div>
-        <h1 className="intro-name">
-          Rishith <span className="intro-grad">Gudepu.</span>
-        </h1>
-        <p className="intro-sub">Finance · Markets · AI</p>
-
-        <div className="chart-wrap">
-          <canvas ref={canvasRef} className="live-chart" />
-          <div className="readout">
-            <span className="readout-px" ref={pxRef}>1000.00</span>
-            <span className="readout-chg up" ref={chgRef}>▲ 0.00%</span>
+        <div className="intro-center">
+          <div className="intro-badge">
+            <span className="live-dot" /> MARKETS OPEN
           </div>
+          <h1 className="intro-name">
+            Rishith <span className="intro-grad">Gudepu.</span>
+          </h1>
+          <p className="intro-sub">Finance · Markets · AI</p>
+
+          <div className="chart-wrap">
+            <canvas ref={canvasRef} className="live-chart" />
+
+            {/* green arrow: the camera's focal point, fades as the chart shows */}
+            <div className="arrow-overlay" aria-hidden="true">
+              <svg className="arrow-svg" viewBox="0 0 240 240" fill="none">
+                <polyline
+                  className="arrow-line"
+                  points="20,190 70,150 105,172 150,110 195,70"
+                  stroke="#34d399"
+                  strokeWidth="14"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <polygon
+                  className="arrow-head"
+                  points="150,55 210,50 205,112"
+                  fill="#34d399"
+                />
+              </svg>
+            </div>
+
+            <div className="readout">
+              <span className="readout-px" ref={pxRef}>1000.00</span>
+              <span className="readout-chg up" ref={chgRef}>▲ 0.00%</span>
+            </div>
+          </div>
+
+          <button className="enter-btn" onClick={enter}>
+            Enter the floor →
+          </button>
+          <p className="intro-hint">click anywhere · or press Enter</p>
         </div>
 
-        <button className="enter-btn" onClick={enter}>
-          Enter the floor →
-        </button>
-        <p className="intro-hint">click anywhere · or press Enter</p>
-      </div>
-
-      <div className="strip-wrap bottom">
-        <Strip items={botItems} />
+        <div className="strip-wrap bottom">
+          <Strip items={botItems} />
+        </div>
       </div>
     </div>
   );
