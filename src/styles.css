@@ -761,3 +761,23 @@ body {
   .about-text p { font-size: 17px; }
   .section-label::after { display: none; }
 }
+
+/* hover any piece of text on the main page -> it flushes red */
+.shell h1:hover,
+.shell h2:hover,
+.shell h3:hover,
+.shell p:hover,
+.shell li:hover,
+.shell span:hover,
+.shell a:hover,
+.hub-name:hover,
+.hub-role:hover,
+.hub-about:hover {
+  color: var(--signal-down);
+  transition: color 0.15s ease;
+}
+.hub-name:hover .grad {
+  background: none;
+  -webkit-text-fill-color: var(--signal-down);
+  color: var(--signal-down);
+}
