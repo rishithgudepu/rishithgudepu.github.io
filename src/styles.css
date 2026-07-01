@@ -228,6 +228,7 @@ body {
   font-size: 12.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  box-shadow: 0 0 22px rgba(226, 233, 245, 0.22);
   transition: transform 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .hub-link:hover .hl-pill {
