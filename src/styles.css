@@ -9,12 +9,12 @@
   --text: #f7f9fd;
   --muted: #aeb8cc;
   --dim: #6a7590;
-  --gold: #ecd9a6;
-  --gold-bright: #f8edc9;
+  --gold: #c3ccda;
+  --gold-bright: #eef2f8;
   --signal-up: #4ade80;
   --signal-down: #f43f5e;
-  --grad-page: linear-gradient(100deg, #ffffff 0%, #f3e3b4 55%, #e6cf9c 100%);
-  --grad-gold-btn: linear-gradient(100deg, #f8edc9 0%, #ecd9a6 100%);
+  --grad-page: linear-gradient(100deg, #ffffff 0%, #dbe2ec 55%, #b7c2d2 100%);
+  --grad-gold-btn: linear-gradient(100deg, #eef2f8 0%, #c3ccda 100%);
 
   /* fonts */
   --serif: "Newsreader", Georgia, "Times New Roman", serif;
