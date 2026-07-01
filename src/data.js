@@ -8,7 +8,7 @@ export const profile = {
   badge: "IMSA '28",
   tagline: "",
   hero:
-    "A high schooler who likes building startups, training models, and chasing down hard problems in finance, economics, and AI. Mostly, I just like making things that work.",
+    "A student who likes analyzing financial markets, training models, and loves to find solutions to problems in finance and artificial intelligence.",
   location: "Greater Chicago Area",
   links: {
     linkedin: "https://www.linkedin.com/in/rishith-gudepu-20346b396",
@@ -18,7 +18,7 @@ export const profile = {
 };
 
 export const about = [
-  "Hey, I'm Rishith. I'm a student at the Illinois Mathematics and Science Academy who spends most of his time building things, whether that's a startup, a machine learning model, or a research project that started as a random idea at 2am.",
+  "Hi, I'm Rishith. I'm a student at the Illinois Mathematics and Science Academy who spends most of his time creating and building things, whether that's a new research project or a machine learning model dedicated to analyzing and predicting athlete statistics and performance.",
 ];
 
 export const skills = [
