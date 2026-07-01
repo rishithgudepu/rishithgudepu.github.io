@@ -126,7 +126,7 @@ export const projects = [
     role: "Co-Founder",
     blurb:
       "Screening ACL tear risk in athletes, using data and modeling to flag injury risk before it happens.",
-    url: "https://land-r.netlify.app",
+    url: "https://landeracl.com",
   },
   {
     name: "Hydra Fund",
