@@ -219,7 +219,7 @@ body {
 }
 .hl-pill {
   padding: 9px 20px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 999px;
   background: rgba(5, 9, 20, 0.55);
   backdrop-filter: blur(6px);
