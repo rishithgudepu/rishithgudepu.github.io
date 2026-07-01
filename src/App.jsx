@@ -74,7 +74,7 @@ export default function App() {
             {profile.name.split(" ")[0]}{" "}
             <span className="grad">{profile.name.split(" ").slice(1).join(" ")}.</span>
           </h1>
-          <p className="tagline">{profile.tagline}</p>
+          {profile.tagline && <p className="tagline">{profile.tagline}</p>}
           <p className="hero-bio">{profile.hero}</p>
 
           <div className="cta-row">
